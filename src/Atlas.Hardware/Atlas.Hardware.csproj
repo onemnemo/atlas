@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Atlas.Hardware — hardware detection.
+
+    Produces the Atlas.Core HardwareProfile that bounds execution strategy
+    (arch §23). Detection is best-effort and degrades gracefully: if a platform
+    probe is unavailable, it falls back to conservative values rather than
+    throwing, because mis-detecting downward (assuming weaker hardware) is always
+    safe.
+  -->
+
+  <PropertyGroup>
+    <RootNamespace>Atlas.Hardware</RootNamespace>
+    <AssemblyName>Atlas.Hardware</AssemblyName>
+    <Description>Cross-platform hardware detection that classifies the host into an Atlas hardware tier.</Description>
+    <!-- Required by the source-generated P/Invoke ([LibraryImport]) for GlobalMemoryStatusEx. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Atlas.Core\Atlas.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Atlas.Composition — the single wire-up point.
+
+    Composes the Atlas modules (hardware detection, inference transport,
+    orchestration runtime) into one ready-to-use service registration. Both the
+    CLI and the Studio UI build on this, so there is exactly one place that knows
+    how the pieces fit together. Nothing here contains behaviour — it is assembly
+    only.
+  -->
+
+  <PropertyGroup>
+    <RootNamespace>Atlas.Composition</RootNamespace>
+    <AssemblyName>Atlas.Composition</AssemblyName>
+    <Description>The Atlas composition root: a single AddAtlas() registration that wires hardware, inference, and orchestration together.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Atlas.Core\Atlas.Core.csproj" />
+    <ProjectReference Include="..\Atlas.Hardware\Atlas.Hardware.csproj" />
+    <ProjectReference Include="..\Atlas.Inference\Atlas.Inference.csproj" />
+    <ProjectReference Include="..\Atlas.Orchestration\Atlas.Orchestration.csproj" />
+  </ItemGroup>
+
+</Project>

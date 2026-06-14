@@ -1,0 +1,63 @@
+# --- Atlas / mnemo ---
+# The architecture spec is kept local and not committed.
+/arch
+
+# --- .NET build output ---
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+build/
+artifacts/
+
+# --- .NET / Visual Studio / Rider ---
+*.user
+*.suo
+*.userprefs
+.vs/
+.vscode/
+.idea/
+*.DotSettings.user
+
+# --- Test / coverage output ---
+[Tt]est[Rr]esult*/
+coverage/
+*.coverage
+*.coveragexml
+*.trx
+
+# --- NuGet ---
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+!**/packages/build/
+
+# --- Rust (future performance components) ---
+target/
+**/*.rs.bk
+Cargo.lock
+
+# --- Local models, weights, and indexes (never committed) ---
+/models/
+*.gguf
+*.bin
+*.safetensors
+/local-index/
+/.atlas/
+/llama
+
+# --- OS noise ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Logs & local environment ---
+*.log
+.env
+.env.local
+

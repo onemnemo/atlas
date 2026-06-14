@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Atlas.Cli/Atlas.Cli.csproj" />
+    <Project Path="src/Atlas.Composition/Atlas.Composition.csproj" />
+    <Project Path="src/Atlas.Core/Atlas.Core.csproj" />
+    <Project Path="src/Atlas.Hardware/Atlas.Hardware.csproj" />
+    <Project Path="src/Atlas.Inference/Atlas.Inference.csproj" />
+    <Project Path="src/Atlas.Orchestration/Atlas.Orchestration.csproj" />
+    <Project Path="src/Atlas.Studio/Atlas.Studio.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Atlas.Core.Tests/Atlas.Core.Tests.csproj" />
+    <Project Path="tests/Atlas.Inference.Tests/Atlas.Inference.Tests.csproj" />
+    <Project Path="tests/Atlas.Orchestration.Tests/Atlas.Orchestration.Tests.csproj" />
+  </Folder>
+</Solution>

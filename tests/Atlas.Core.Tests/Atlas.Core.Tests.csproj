@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Unit tests for Atlas.Core's contracts and invariants.
+
+    These tests are part of the foundation: the architecture's safety guarantees
+    (a finding must cite a source, a degraded result must carry a warning, the
+    permission ladder is monotonic, …) are only real if they are enforced and
+    pinned by tests. As stages and modules are added, each gets its own test
+    project alongside it.
+  -->
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Atlas.Core\Atlas.Core.csproj" />
+  </ItemGroup>
+
+</Project>

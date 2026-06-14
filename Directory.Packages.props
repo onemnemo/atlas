@@ -1,0 +1,49 @@
+<Project>
+
+  <!--
+    Central Package Management (CPM).
+
+    All NuGet package versions for the whole solution are declared here exactly
+    once. Individual projects reference packages with <PackageReference> but no
+    Version attribute. This prevents version drift between projects and makes
+    dependency upgrades a single-file change.
+
+    https://learn.microsoft.com/nuget/consume-packages/central-package-management
+  -->
+
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Microsoft.Extensions: DI, configuration, logging, options.
+         These are the backbone of a modular, swap-friendly composition root. -->
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="Data">
+    <PackageVersion Include="Microsoft.Data.Sqlite" Version="9.0.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="UI (Dear ImGui via Hexa.NET)">
+    <PackageVersion Include="Hexa.NET.ImGui" Version="2.2.9" />
+    <PackageVersion Include="Hexa.NET.ImGui.Backends" Version="1.0.18" />
+    <PackageVersion Include="Hexa.NET.ImGui.Backends.GLFW" Version="1.0.18" />
+    <PackageVersion Include="Hexa.NET.GLFW" Version="1.0.5" />
+    <PackageVersion Include="Hexa.NET.OpenGL3" Version="1.1.0" />
+  </ItemGroup>
+
+  <ItemGroup Label="Testing">
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
+    <PackageVersion Include="xunit" Version="2.9.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+  </ItemGroup>
+
+</Project>

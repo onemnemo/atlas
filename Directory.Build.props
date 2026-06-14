@@ -1,0 +1,62 @@
+<Project>
+
+  <!--
+    Atlas — shared build settings for every project in the solution.
+
+    This file is imported automatically by every .csproj beneath the repository
+    root. Keep it focused on cross-cutting build/quality policy only. Anything
+    project-specific belongs in the individual .csproj.
+
+    Design intent:
+      - One strict, consistent standard across the whole solution.
+      - Treat warnings as errors so quality issues are fixed, not accumulated.
+      - Nullable reference types on everywhere: model output is untrusted, and we
+        want the compiler to force explicit handling of "absent" everywhere.
+  -->
+
+  <PropertyGroup>
+    <!-- Single source of truth for the target framework. Bump here only. -->
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+
+    <!-- Clean-code enforcement. -->
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+
+    <!-- Deterministic, reproducible builds. -->
+    <Deterministic>true</Deterministic>
+    <InvariantGlobalization>true</InvariantGlobalization>
+
+    <!-- Documentation: encourage XML docs on public APIs across the solution.
+         CS1591 (missing XML comment) stays a warning-as-error only for libraries
+         that opt in via GenerateDocumentationFile; see individual projects. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- Common metadata. -->
+    <Company>mnemo</Company>
+    <Product>Atlas</Product>
+    <Authors>mnemo</Authors>
+    <Copyright>Copyright (c) mnemo. Licensed under the Apache License, Version 2.0.</Copyright>
+    <NeutralLanguage>en</NeutralLanguage>
+  </PropertyGroup>
+
+  <!--
+    Test projects are not published and do not need API docs. Detected by the
+    convention that test project names end in ".Tests".
+  -->
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('.Tests'))">
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <IsPackable>false</IsPackable>
+    <!--
+      Test method names use the Given_When_Then underscore convention, which is
+      a deliberate, widely-accepted readability choice for tests. CA1707 (no
+      underscores in identifiers) does not apply to test code.
+    -->
+    <NoWarn>$(NoWarn);CA1707</NoWarn>
+  </PropertyGroup>
+
+</Project>

@@ -1,0 +1,34 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Atlas.Inference — the local model transport.
+
+    Implements Atlas.Core's IInferenceClient and IModelResolver against a local
+    OpenAI-compatible HTTP endpoint (llama.cpp's llama-server, in router mode or
+    as plain per-model servers). This is the only module that talks to the model
+    backend; swapping the engine is replacing this implementation (arch §31.2,
+    §31.3).
+
+    It carries no knowledge of pipelines, tasks, or app data — it maps a resolved
+    InferenceRequest to an HTTP call and back. The role -> model mapping (the
+    model sheet) lives here as configurable data, not hard-coded logic.
+  -->
+
+  <PropertyGroup>
+    <RootNamespace>Atlas.Inference</RootNamespace>
+    <AssemblyName>Atlas.Inference</AssemblyName>
+    <Description>Local model serving for Atlas: an OpenAI-compatible HTTP inference client and a config-driven model resolver.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Atlas.Core\Atlas.Core.csproj" />
+  </ItemGroup>
+
+</Project>

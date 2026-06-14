@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Atlas.Studio — the immediate-mode control surface.
+
+    A Dear ImGui (Hexa.NET) dashboard that sits strictly ON TOP of the system: it
+    consumes Atlas.Composition's registered services through IAtlasOrchestrator and
+    the read-only contracts, and renders screens to see, drive, and adjust the
+    running pipeline. It contains no orchestration, inference, or domain logic —
+    only presentation and interaction — so it can be changed or removed without
+    affecting the core.
+  -->
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>Atlas.Studio</RootNamespace>
+    <AssemblyName>Atlas.Studio</AssemblyName>
+    <!-- Dear ImGui backends use pointer-based interop. -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- A windowed host exposes no public API surface to document. -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hexa.NET.ImGui" />
+    <PackageReference Include="Hexa.NET.ImGui.Backends" />
+    <PackageReference Include="Hexa.NET.ImGui.Backends.GLFW" />
+    <PackageReference Include="Hexa.NET.GLFW" />
+    <PackageReference Include="Hexa.NET.OpenGL3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Atlas.Composition\Atlas.Composition.csproj" />
+  </ItemGroup>
+
+</Project>

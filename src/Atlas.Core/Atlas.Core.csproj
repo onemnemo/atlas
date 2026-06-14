@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Atlas.Core — the stable contract layer.
+
+    This project defines the domain model, contracts, and abstractions that the
+    rest of Atlas is built on: hardware profiles, task profiles, output
+    contracts, permissions, memory layers, evidence packets, pipeline-stage
+    interfaces, the inference abstraction, and the public orchestrator surface.
+
+    Rules for this project:
+      - It contains contracts and pure domain types, NOT implementations of
+        pipeline behaviour, retrieval, inference transport, etc.
+      - It must have as few dependencies as possible. Everything here should be
+        consumable in-process by the Avalonia app or behind an IPC boundary
+        without dragging heavy dependencies along (see arch §31.1).
+      - Every public type is documented. These contracts are the training target
+        for future fine-tuned models (arch §16, §25), so they must be precise.
+  -->
+
+  <PropertyGroup>
+    <RootNamespace>Atlas.Core</RootNamespace>
+    <AssemblyName>Atlas.Core</AssemblyName>
+    <Description>Atlas core contracts and domain model: the stable, dependency-light foundation that every other Atlas module builds on.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Atlas.Orchestration — the guarded pipeline runtime.
+
+    Implements IAtlasOrchestrator: it resolves a request's task profile, routes
+    it through the appropriate pipeline route, assembles a scoped context budget,
+    runs replaceable stages with bounded repair/escalation, and assembles an
+    honest PipelineResult (arch §5, §6, §21, §28).
+
+    It depends only on Atlas.Core contracts — not on the inference transport or
+    hardware modules directly. Concrete services (IInferenceClient, IModelResolver,
+    HardwareProfile) are injected, so the runtime is testable with fakes and the
+    real backends are wired in only at the composition root.
+  -->
+
+  <PropertyGroup>
+    <RootNamespace>Atlas.Orchestration</RootNamespace>
+    <AssemblyName>Atlas.Orchestration</AssemblyName>
+    <Description>The Atlas guarded pipeline runtime: routing, scoped context budgeting, replaceable stages, repair loops, and result assembly.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Atlas.Core\Atlas.Core.csproj" />
+  </ItemGroup>
+
+</Project>
