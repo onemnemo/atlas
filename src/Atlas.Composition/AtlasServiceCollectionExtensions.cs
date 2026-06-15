@@ -2,6 +2,7 @@ using Atlas.Hardware;
 using Atlas.Inference;
 using Atlas.Inference.Configuration;
 using Atlas.Orchestration;
+using Atlas.Tools;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Atlas.Composition;
@@ -35,6 +36,7 @@ public static class AtlasServiceCollectionExtensions
         services.AddAtlasHardware(tierPolicy);
         services.AddAtlasInference(configureInference);
         services.AddAtlasOrchestration();
+        services.AddAtlasTools();
 
         return services;
     }

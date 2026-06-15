@@ -3,11 +3,13 @@ using Atlas.Core;
 using Atlas.Core.Hardware;
 using Atlas.Core.Inference;
 using Atlas.Core.Tasks;
+using Atlas.Core.Tools;
 using Atlas.Inference;
 using Atlas.Inference.Configuration;
 using Atlas.Orchestration;
 using Atlas.Studio.Logging;
 using Atlas.Studio.Screens;
+using Atlas.Tools;
 using Hexa.NET.ImGui;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -24,6 +26,7 @@ internal sealed partial class StudioApp : IDisposable
 {
     private readonly StudioState _state;
     private readonly IInferenceHealthProbe _healthProbe;
+    private readonly ToolRegistry _toolRegistry;
     private readonly ILogger<StudioApp> _logger;
     private readonly List<StudioScreen> _screens;
     private readonly CancellationTokenSource _cts = new();
@@ -40,6 +43,8 @@ internal sealed partial class StudioApp : IDisposable
         var inferenceOptions = provider.GetRequiredService<IOptions<InferenceOptions>>().Value;
         var chatOptions = provider.GetRequiredService<IOptions<ChatOptions>>().Value;
         var logBuffer = provider.GetRequiredService<LogBuffer>();
+        var toolGateway = provider.GetRequiredService<IToolGateway>();
+        _toolRegistry = provider.GetRequiredService<ToolRegistry>();
         _healthProbe = provider.GetRequiredService<IInferenceHealthProbe>();
         _logger = provider.GetService<ILogger<StudioApp>>() ?? NullLogger<StudioApp>.Instance;
 
@@ -53,14 +58,19 @@ internal sealed partial class StudioApp : IDisposable
             new RunInspectorScreen(_state, profiles, resolver, hardware),
             new ModelsScreen(inferenceOptions, resolver, hardware),
             new TaskProfilesScreen(profiles),
+            new ToolsScreen(toolGateway, _toolRegistry, _state, hardware),
             new SettingsScreen(_state, inferenceOptions, chatOptions),
             new PermissionsScreen(_state),
             new LogsScreen(logBuffer),
         ];
     }
 
-    /// <summary>Starts background work (the periodic backend-health poll).</summary>
-    public void Start() => _ = PollHealthAsync(_cts.Token);
+    /// <summary>Starts background work: the health poll and the initial tool-tree discovery.</summary>
+    public void Start()
+    {
+        _ = PollHealthAsync(_cts.Token);
+        _ = _toolRegistry.RefreshAsync(_cts.Token);
+    }
 
     /// <summary>Renders one frame: the dockspace, the menu bar, and every open screen.</summary>
     public void SubmitUI()

@@ -34,6 +34,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Atlas.Composition\Atlas.Composition.csproj" />
+    <ProjectReference Include="..\Atlas.Tools\Atlas.Tools.csproj" />
   </ItemGroup>
 
 </Project>

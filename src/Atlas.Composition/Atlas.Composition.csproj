@@ -25,6 +25,7 @@
     <ProjectReference Include="..\Atlas.Hardware\Atlas.Hardware.csproj" />
     <ProjectReference Include="..\Atlas.Inference\Atlas.Inference.csproj" />
     <ProjectReference Include="..\Atlas.Orchestration\Atlas.Orchestration.csproj" />
+    <ProjectReference Include="..\Atlas.Tools\Atlas.Tools.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Atlas.Tools — the scoped tool tree (arch §10-§14, §35).
+
+    Implements Atlas.Core's IToolGateway: a permissioned, branch-navigated tool
+    tree that solves the tool-overload problem for small models. Tools are never
+    dumped as a flat list; the model discovers a branch, receives a small scoped
+    set, and invokes one tool with validated arguments.
+
+    Tools come from two kinds of source, behind one uniform abstraction:
+      - built-in local tools (e.g. gated web search), and
+      - tools discovered from external MCP servers over JSON-RPC.
+
+    This module owns transport and validation only. It carries no knowledge of
+    the pipeline; the orchestration layer decides when and why to use a tool.
+  -->
+
+  <PropertyGroup>
+    <RootNamespace>Atlas.Tools</RootNamespace>
+    <AssemblyName>Atlas.Tools</AssemblyName>
+    <Description>The scoped, permissioned tool tree for Atlas: local tools, MCP client transport, and gated web search.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Atlas.Core\Atlas.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,74 +1,43 @@
-using System.Numerics;
-using System.Text;
 using Hexa.NET.ImGui;
 
 namespace Atlas.Studio.Widgets;
 
 /// <summary>
-/// Renders read-only text that supports mouse selection and clipboard copy
-/// (Ctrl+C), unlike plain <see cref="ImGui.TextWrapped"/>.
+/// Renders read-only body text that word-wraps to the available width and can be
+/// copied to the clipboard via a right-click menu.
 /// </summary>
 /// <remarks>
-/// Dear ImGui only exposes selection on input widgets. A read-only
-/// <c>InputTextMultiline</c> is the standard pattern for copy-friendly transcript
-/// text; styling is flattened so it reads like body copy rather than a text box.
+/// A read-only <c>InputTextMultiline</c> supports drag-selection but does not
+/// word-wrap (it scrolls horizontally), which makes long model replies hard to
+/// read. Wrapping is the priority here, so the block draws with
+/// <see cref="ImGui.TextWrapped(string)"/> and keeps copy support through a
+/// context menu rather than native selection.
 /// </remarks>
 internal sealed class SelectableTextBlock
 {
-    private byte[] _buffer = new byte[256];
     private string _text = string.Empty;
 
-    /// <summary>Stores the text to display. Grows the native buffer as needed.</summary>
-    public void SetText(string value)
-    {
-        _text = value ?? string.Empty;
+    /// <summary>Stores the text to display.</summary>
+    public void SetText(string value) => _text = value ?? string.Empty;
 
-        int byteCount = Encoding.UTF8.GetByteCount(_text);
-        int required = byteCount + 1;
-        if (required > _buffer.Length)
-        {
-            _buffer = new byte[required + 512];
-        }
-
-        Array.Clear(_buffer);
-        if (byteCount > 0)
-        {
-            Encoding.UTF8.GetBytes(_text, 0, _text.Length, _buffer, 0);
-        }
-    }
-
-    /// <summary>
-    /// Draws the block at the current cursor, auto-sizing height to the wrapped
-    /// content width.
-    /// </summary>
-    public unsafe void Draw()
+    /// <summary>Draws the wrapped text at the current cursor, with a copy context menu.</summary>
+    public void Draw()
     {
         if (_text.Length == 0)
         {
             return;
         }
 
-        float width = MathF.Max(1f, ImGui.GetContentRegionAvail().X);
-        ImGuiStylePtr style = ImGui.GetStyle();
-        Vector2 wrapped = ImGui.CalcTextSize(_text, wrapWidth: width);
-        float height = MathF.Max(ImGui.GetTextLineHeight(), wrapped.Y)
-            + style.FramePadding.Y * 2f;
+        ImGui.TextWrapped(_text);
 
-        ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0f, style.FramePadding.Y * 0.5f));
-        ImGui.PushStyleVar(ImGuiStyleVar.FrameBorderSize, 0f);
-        ImGui.PushStyleColor(ImGuiCol.FrameBg, new Vector4(0f, 0f, 0f, 0f));
-
-        fixed (byte* ptr = _buffer)
+        if (ImGui.BeginPopupContextItem("##copytext"))
         {
-            ImGui.InputTextMultiline(
-                "##selectable",
-                ptr,
-                (nuint)_buffer.Length,
-                new Vector2(width, height),
-                ImGuiInputTextFlags.ReadOnly);
-        }
+            if (ImGui.MenuItem("Copy"))
+            {
+                ImGui.SetClipboardText(_text);
+            }
 
-        ImGui.PopStyleColor();
-        ImGui.PopStyleVar(2);
+            ImGui.EndPopup();
+        }
     }
 }

@@ -16,6 +16,13 @@ public sealed class ChatOptions
     /// <summary>Sampling temperature for chat drafting (0 = deterministic, higher = more varied).</summary>
     public double Temperature { get; set; } = 0.7;
 
+    /// <summary>
+    /// Hard cap on generated output tokens. <c>0</c> means "use the per-task
+    /// budget" (the default). Raise this when short answers are being cut off —
+    /// small models can spend the budget on reasoning before reaching the answer.
+    /// </summary>
+    public int MaxOutputTokens { get; set; }
+
     /// <summary>The system framing prepended to every chat request.</summary>
     public string SystemPrompt { get; set; } =
         "You are Atlas, a careful local study assistant for the mnemo app. " +

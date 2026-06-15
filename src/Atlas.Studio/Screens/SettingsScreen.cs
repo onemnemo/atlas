@@ -98,6 +98,14 @@ internal sealed class SettingsScreen : StudioScreen
             _chat.Temperature = temperature;
         }
 
+        int maxTokens = _chat.MaxOutputTokens;
+        if (ImGui.SliderInt("Max output tokens (0 = auto)", ref maxTokens, 0, 8192))
+        {
+            _chat.MaxOutputTokens = maxTokens;
+        }
+
+        ImGui.TextDisabled("Raise this if short answers get cut off mid-sentence.");
+
         ImGui.Text("System prompt");
         _systemPrompt.InputMultiline("##systemprompt", new Vector2(-1, ImGui.GetFrameHeightWithSpacing() * 3f));
         if (ImGui.Button("Apply##prompt"))

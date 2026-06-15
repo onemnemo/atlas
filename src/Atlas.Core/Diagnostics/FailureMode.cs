@@ -51,4 +51,10 @@ public enum FailureMode
 
     /// <summary>A summary failed quality checks; the original chunk is preferred.</summary>
     BadSummarization = 10,
+
+    /// <summary>
+    /// A required external resource (a tool backend, MCP server, or network
+    /// endpoint) was unavailable or not configured.
+    /// </summary>
+    ResourceUnavailable = 11,
 }

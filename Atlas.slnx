@@ -7,10 +7,12 @@
     <Project Path="src/Atlas.Inference/Atlas.Inference.csproj" />
     <Project Path="src/Atlas.Orchestration/Atlas.Orchestration.csproj" />
     <Project Path="src/Atlas.Studio/Atlas.Studio.csproj" />
+    <Project Path="src/Atlas.Tools/Atlas.Tools.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Atlas.Core.Tests/Atlas.Core.Tests.csproj" />
     <Project Path="tests/Atlas.Inference.Tests/Atlas.Inference.Tests.csproj" />
     <Project Path="tests/Atlas.Orchestration.Tests/Atlas.Orchestration.Tests.csproj" />
+    <Project Path="tests/Atlas.Tools.Tests/Atlas.Tools.Tests.csproj" />
   </Folder>
 </Solution>

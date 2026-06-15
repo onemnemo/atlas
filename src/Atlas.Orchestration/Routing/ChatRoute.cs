@@ -70,12 +70,17 @@ public sealed class ChatRoute : IPipelineRoute
         // step, bounded by the profile's retry budget (arch §21).
         for (int attempt = 0; attempt <= context.Profile.MaxRetries; attempt++)
         {
+            // A user-configured cap overrides the per-task generation slice; 0 means "auto".
+            int generationCap = _chatOptions.Value.MaxOutputTokens > 0
+                ? _chatOptions.Value.MaxOutputTokens
+                : budget.GenerationTokens;
+
             StageContext stageContext = context.CreateStageContext(budget);
             var input = new ChatDraftInput(
                 UserInput: context.Request.Input,
                 SystemPrompt: _chatOptions.Value.SystemPrompt,
                 ModelOverride: modelOverride,
-                MaxOutputTokensOverride: budget.GenerationTokens);
+                MaxOutputTokensOverride: generationCap);
 
             StageOutcome<string> outcome = await _drafter
                 .ExecuteAsync(stageContext, input, cancellationToken)
