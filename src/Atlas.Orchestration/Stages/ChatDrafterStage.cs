@@ -1,3 +1,4 @@
+using System.Text;
 using Atlas.Core.Contracts;
 using Atlas.Core.Diagnostics;
 using Atlas.Core.Inference;
@@ -75,11 +76,30 @@ public sealed class ChatDrafterStage : IPipelineStage<ChatDraftInput, string>
             MaxOutputTokens: maxTokens,
             Temperature: _chatOptions.Value.Temperature);
 
-        InferenceResponse response = await _inferenceClient
-            .CompleteAsync(request, cancellationToken)
-            .ConfigureAwait(false);
+        InferenceResponse response = input.OnToken is not null
+            ? await StreamAndCollectAsync(request, input.OnToken, cancellationToken).ConfigureAwait(false)
+            : await _inferenceClient.CompleteAsync(request, cancellationToken).ConfigureAwait(false);
 
         return MapResponse(response);
+    }
+
+    private async Task<InferenceResponse> StreamAndCollectAsync(
+        InferenceRequest request,
+        Action<string> onToken,
+        CancellationToken cancellationToken)
+    {
+        var sb = new StringBuilder();
+        await foreach (string token in _inferenceClient
+                           .CompleteStreamingAsync(request, cancellationToken)
+                           .ConfigureAwait(false))
+        {
+            sb.Append(token);
+            onToken(token);
+        }
+
+        string text = sb.ToString();
+        FinishReason finish = text.Length > 0 ? FinishReason.Stop : FinishReason.Error;
+        return new InferenceResponse(text, finish, default, request.Model.Name);
     }
 
     private static StageOutcome<string> MapResponse(InferenceResponse response)

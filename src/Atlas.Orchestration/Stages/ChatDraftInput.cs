@@ -12,7 +12,7 @@ namespace Atlas.Orchestration.Stages;
 /// ceiling (<see cref="MaxOutputTokensOverride"/>), per the scope-reduction
 /// strategy in arch §21.
 /// </remarks>
-/// <param name="UserInput">The user's message.</param>
+/// <param name="UserInput">The user's message, possibly pre-augmented with search context.</param>
 /// <param name="SystemPrompt">The system framing for the assistant.</param>
 /// <param name="ModelOverride">
 /// A specific model to use instead of resolving the main worker (used for
@@ -22,8 +22,13 @@ namespace Atlas.Orchestration.Stages;
 /// A reduced output ceiling for a scope-reduced retry; falls back to the stage's
 /// budgeted generation tokens when null.
 /// </param>
+/// <param name="OnToken">
+/// Optional callback invoked with each partial token when the backend streams
+/// its reply.  Null disables streaming (uses a single blocking call).
+/// </param>
 public sealed record ChatDraftInput(
     string UserInput,
     string SystemPrompt,
     ModelDescriptor? ModelOverride = null,
-    int? MaxOutputTokensOverride = null);
+    int? MaxOutputTokensOverride = null,
+    Action<string>? OnToken = null);

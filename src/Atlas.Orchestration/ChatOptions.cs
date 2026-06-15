@@ -27,4 +27,11 @@ public sealed class ChatOptions
     public string SystemPrompt { get; set; } =
         "You are Atlas, a careful local study assistant for the mnemo app. " +
         "Answer clearly and concisely. If you are unsure, say so rather than inventing facts.";
+
+    /// <summary>
+    /// Maximum number of tool-call rounds in agent mode before the loop is
+    /// considered exhausted and the run is escalated.  Defaults to 5, which
+    /// is generous while still bounding runaway loops (arch §21).
+    /// </summary>
+    public int MaxToolIterations { get; set; } = 5;
 }

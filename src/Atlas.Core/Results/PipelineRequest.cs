@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using Atlas.Core.Permissions;
+using Atlas.Core.Pipeline;
 
 namespace Atlas.Core.Results;
 
@@ -50,4 +51,38 @@ public sealed record PipelineRequest(
 
     /// <summary>The effective permission state, defaulting to read-only when none was supplied.</summary>
     public PermissionState EffectivePermissions => Permissions ?? PermissionState.ReadOnly;
+
+    // ── Live-feedback callbacks ───────────────────────────────────────────────
+    // These are intentionally delegates (not IProgress<T>) so they are invoked
+    // directly on the pipeline thread without SynchronizationContext marshalling.
+    // Consumers must handle thread-safety themselves.  Both are optional and
+    // null-safe: the pipeline never requires them to be set (arch §31.4).
+
+    /// <summary>
+    /// Called with each partial token as the model streams its reply.
+    /// Only fired during the final generation stage, never during tool calls or
+    /// intermediate repairs.
+    /// </summary>
+    public Action<string>? OnToken { get; init; }
+
+    /// <summary>
+    /// Called each time the pipeline transitions to a new activity (routing,
+    /// searching, fetching, generating…).  Useful for a live status indicator.
+    /// </summary>
+    public Action<ActivityEntry>? OnActivity { get; init; }
+
+    // ── Execution flags ───────────────────────────────────────────────────────
+
+    /// <summary>
+    /// When true, the pipeline runs the model-directed tool-call loop (arch §12):
+    /// the model sees a scoped set of tools, can invoke them one or more times,
+    /// and produces its final reply after all tool results have been incorporated.
+    /// <para>
+    /// When false (the default), the pipeline uses the simpler pre-search
+    /// injection strategy: if the internet gate is open it runs a web search
+    /// automatically and injects the results as context, without the model
+    /// choosing when or whether to search.
+    /// </para>
+    /// </summary>
+    public bool AgentMode { get; init; }
 }

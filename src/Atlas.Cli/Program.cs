@@ -5,6 +5,10 @@ using Atlas.Core.Results;
 using Atlas.Core.Tasks;
 using Atlas.Hardware;
 using Atlas.Inference;
+using Atlas.Orchestration;
+using Atlas.Tools.Mcp;
+using Atlas.Tools.WebSearch;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -15,10 +19,18 @@ using Microsoft.Extensions.Logging;
 //   atlas chat "your prompt"  Run a chat request end-to-end.
 //   atlas "your prompt"       Shorthand for chat.
 //
-// The inference base URL defaults to http://localhost:8080 and can be overridden
-// with the ATLAS_BASE_URL environment variable.
+// Configuration is loaded from appsettings.json next to the executable.
+// ATLAS_BASE_URL env var overrides the inference URL for backward compatibility.
 
-string baseUrl = Environment.GetEnvironmentVariable("ATLAS_BASE_URL") ?? "http://localhost:8080";
+IConfiguration config = new ConfigurationBuilder()
+    .SetBasePath(AppContext.BaseDirectory)
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+    .AddEnvironmentVariables("ATLAS__")
+    .Build();
+
+string baseUrl = Environment.GetEnvironmentVariable("ATLAS_BASE_URL")
+    ?? config["Atlas:BaseUrl"]
+    ?? "http://localhost:8080";
 
 var services = new ServiceCollection();
 services.AddLogging(builder => builder
@@ -28,6 +40,9 @@ services.AddLogging(builder => builder
     .AddFilter("Atlas", LogLevel.Information)
     .AddSimpleConsole(o => { o.SingleLine = true; o.TimestampFormat = "HH:mm:ss "; }));
 services.AddAtlas(inference => inference.BaseUrl = baseUrl);
+services.Configure<WebSearchOptions>(config.GetSection("Atlas:WebSearch"));
+services.Configure<McpClientOptions>(config.GetSection("Atlas:Mcp"));
+services.Configure<ChatOptions>(config.GetSection("Atlas:Chat"));
 
 using ServiceProvider provider = services.BuildServiceProvider();
 

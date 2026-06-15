@@ -23,9 +23,11 @@ public static class ToolsServiceCollectionExtensions
         services.AddOptions<McpClientOptions>();
         services.AddOptions<WebSearchOptions>();
 
-        // Web-search backend: a concrete provider when configured, else the
-        // disabled backend that returns a clear "not configured" result.
+        // Shared named HttpClient used by all web-search backends.
         services.AddHttpClient(SearxngWebSearchBackend.HttpClientName);
+
+        // Web-search backend resolved once at startup based on the configured provider.
+        // DuckDuckGo is the default — zero setup, no server, no API key.
         services.TryAddSingleton<IWebSearchBackend>(static provider =>
         {
             WebSearchOptions options = provider
@@ -33,7 +35,9 @@ public static class ToolsServiceCollectionExtensions
 
             return options.Provider switch
             {
+                WebSearchProvider.DuckDuckGo => ActivatorUtilities.CreateInstance<DuckDuckGoWebSearchBackend>(provider),
                 WebSearchProvider.Searxng => ActivatorUtilities.CreateInstance<SearxngWebSearchBackend>(provider),
+                WebSearchProvider.Brave => ActivatorUtilities.CreateInstance<BraveWebSearchBackend>(provider),
                 _ => new DisabledWebSearchBackend(),
             };
         });

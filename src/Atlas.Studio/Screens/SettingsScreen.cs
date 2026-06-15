@@ -2,6 +2,7 @@ using System.Numerics;
 using Atlas.Inference.Configuration;
 using Atlas.Orchestration;
 using Atlas.Studio.Widgets;
+using Atlas.Tools.WebSearch;
 using Hexa.NET.ImGui;
 
 namespace Atlas.Studio.Screens;
@@ -24,19 +25,23 @@ internal sealed class SettingsScreen : StudioScreen
     private readonly StudioState _state;
     private readonly InferenceOptions _inference;
     private readonly ChatOptions _chat;
+    private readonly WebSearchOptions _webSearch;
 
     private readonly TextInputBuffer _baseUrl = new(512);
     private readonly TextInputBuffer _systemPrompt = new();
+    private readonly TextInputBuffer _searxngUrl = new(512);
     private readonly TextInputBuffer _endpointModel = new(256);
     private readonly TextInputBuffer _endpointUrl = new(512);
 
-    public SettingsScreen(StudioState state, InferenceOptions inference, ChatOptions chat)
+    public SettingsScreen(StudioState state, InferenceOptions inference, ChatOptions chat, WebSearchOptions webSearch)
     {
         _state = state;
         _inference = inference;
         _chat = chat;
+        _webSearch = webSearch;
         _baseUrl.SetText(inference.BaseUrl);
         _systemPrompt.SetText(chat.SystemPrompt);
+        _searxngUrl.SetText(webSearch.BaseUrl);
     }
 
     public override string Title => "Settings";
@@ -45,6 +50,7 @@ internal sealed class SettingsScreen : StudioScreen
     {
         RenderBackendSection();
         RenderChatSection();
+        RenderWebSearchSection();
         RenderEndpointOverrides();
     }
 
@@ -119,6 +125,89 @@ internal sealed class SettingsScreen : StudioScreen
             _chat.SystemPrompt = new ChatOptions().SystemPrompt;
             _systemPrompt.SetText(_chat.SystemPrompt);
         }
+    }
+
+    private void RenderWebSearchSection()
+    {
+        ImGui.SeparatorText("Web search");
+
+        Vector4 statusColor;
+        string statusText;
+
+        switch (_webSearch.Provider)
+        {
+            case WebSearchProvider.DuckDuckGo:
+                statusColor = new Vector4(0.40f, 0.85f, 0.45f, 1f);
+                statusText = "Active — DuckDuckGo (no setup required)";
+                break;
+
+            case WebSearchProvider.Searxng when !string.IsNullOrWhiteSpace(_webSearch.BaseUrl):
+                statusColor = new Vector4(0.40f, 0.85f, 0.45f, 1f);
+                statusText = $"Active — SearXNG at {_webSearch.BaseUrl}";
+                break;
+
+            case WebSearchProvider.Searxng:
+                statusColor = new Vector4(0.95f, 0.80f, 0.35f, 1f);
+                statusText = "SearXNG selected but no base URL is set";
+                break;
+
+            case WebSearchProvider.Brave when !string.IsNullOrWhiteSpace(_webSearch.ApiKey):
+                statusColor = new Vector4(0.40f, 0.85f, 0.45f, 1f);
+                statusText = "Active — Brave Search (API key set)";
+                break;
+
+            case WebSearchProvider.Brave:
+                statusColor = new Vector4(0.95f, 0.80f, 0.35f, 1f);
+                statusText = "Brave selected but no API key is set";
+                break;
+
+            default:
+                statusColor = new Vector4(0.95f, 0.45f, 0.45f, 1f);
+                statusText = "Disabled (Provider = None)";
+                break;
+        }
+
+        ImGui.TextColored(statusColor, $"● {statusText}");
+
+        // Live-editable field only makes sense for SearXNG.
+        if (_webSearch.Provider == WebSearchProvider.Searxng)
+        {
+            ImGui.SetNextItemWidth(360);
+            _searxngUrl.InputLine("SearXNG base URL");
+            ImGui.SameLine();
+            if (ImGui.Button("Apply##searxng"))
+            {
+                _webSearch.BaseUrl = _searxngUrl.Text;
+            }
+        }
+
+        // Result count controls — live-editable without restart.
+        int minR = _webSearch.MinResults;
+        if (ImGui.SliderInt("Min results", ref minR, 1, 10))
+        {
+            _webSearch.MinResults = minR;
+        }
+
+        if (ImGui.IsItemHovered())
+        {
+            ImGui.SetTooltip("Atlas will warn in the activity feed when fewer than this many results are returned.");
+        }
+
+        int maxR = _webSearch.DefaultMaxResults;
+        if (ImGui.SliderInt("Max results (default)", ref maxR, 1, _webSearch.ResultLimit))
+        {
+            _webSearch.DefaultMaxResults = maxR;
+        }
+
+        int limitR = _webSearch.ResultLimit;
+        if (ImGui.SliderInt("Hard result cap", ref limitR, 1, 20))
+        {
+            _webSearch.ResultLimit = Math.Max(limitR, _webSearch.DefaultMaxResults);
+        }
+
+        ImGui.TextDisabled("Change the provider in appsettings.json (next to the executable) and restart.");
+        ImGui.TextDisabled("Provider options: DuckDuckGo (default), Searxng, Brave, None");
+        ImGui.TextDisabled("Remember to enable the internet gate in Permissions before invoking web search.");
     }
 
     private void RenderEndpointOverrides()

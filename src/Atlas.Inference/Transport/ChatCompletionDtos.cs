@@ -34,6 +34,11 @@ internal sealed class ChatCompletionRequest
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public ResponseFormatDto? ResponseFormat { get; init; }
 
+    /// <summary>Tool definitions offered to the model. Null when not using tool-call mode.</summary>
+    [JsonPropertyName("tools")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ToolDefinitionDto>? Tools { get; init; }
+
     [JsonPropertyName("stream")]
     public bool Stream { get; init; }
 }
@@ -46,8 +51,70 @@ internal sealed class ChatMessageDto
     [JsonPropertyName("role")]
     public string Role { get; init; } = "assistant";
 
+    // Nullable: tool-calls messages have null content (the model emits tool_calls
+    // instead of text).  WhenWritingNull omits the key entirely which is what
+    // backends expect for those messages.
     [JsonPropertyName("content")]
-    public string Content { get; init; } = string.Empty;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Content { get; init; }
+
+    /// <summary>Tool invocations the model emitted (present on assistant messages in tool-call mode).</summary>
+    [JsonPropertyName("tool_calls")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<ToolCallDto>? ToolCalls { get; init; }
+
+    /// <summary>Correlation ID linking a tool-result message back to the matching tool call.</summary>
+    [JsonPropertyName("tool_call_id")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? ToolCallId { get; init; }
+}
+
+// ── Tool definition DTOs (sent in the request) ────────────────────────────────
+
+internal sealed class ToolDefinitionDto
+{
+    [JsonPropertyName("type")]
+    public string Type { get; init; } = "function";
+
+    [JsonPropertyName("function")]
+    public required ToolFunctionDto Function { get; init; }
+}
+
+internal sealed class ToolFunctionDto
+{
+    [JsonPropertyName("name")]
+    public required string Name { get; init; }
+
+    [JsonPropertyName("description")]
+    public required string Description { get; init; }
+
+    [JsonPropertyName("parameters")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public JsonNode? Parameters { get; init; }
+}
+
+// ── Tool call DTOs (returned by the model) ────────────────────────────────────
+
+internal sealed class ToolCallDto
+{
+    [JsonPropertyName("id")]
+    public string Id { get; init; } = string.Empty;
+
+    [JsonPropertyName("type")]
+    public string Type { get; init; } = "function";
+
+    [JsonPropertyName("function")]
+    public ToolCallFunctionDto? Function { get; init; }
+}
+
+internal sealed class ToolCallFunctionDto
+{
+    [JsonPropertyName("name")]
+    public string Name { get; init; } = string.Empty;
+
+    /// <summary>The model's raw JSON string for the tool arguments.</summary>
+    [JsonPropertyName("arguments")]
+    public string Arguments { get; init; } = "{}";
 }
 
 internal sealed class ResponseFormatDto
@@ -88,6 +155,11 @@ internal sealed class ChoiceDto
 
     [JsonPropertyName("finish_reason")]
     public string? FinishReason { get; init; }
+
+    /// <summary>Shorthand: true when the model chose to call tools instead of returning text.</summary>
+    internal bool IsToolCall =>
+        FinishReason == "tool_calls"
+        || (Message?.ToolCalls is { Count: > 0 });
 }
 
 internal sealed class UsageDto
@@ -97,4 +169,29 @@ internal sealed class UsageDto
 
     [JsonPropertyName("completion_tokens")]
     public int CompletionTokens { get; init; }
+}
+
+// ── Streaming DTOs ────────────────────────────────────────────────────────────
+// Used when Stream=true; the backend sends one SSE "data: {json}" line per
+// token.  The final SSE event is "data: [DONE]".
+
+internal sealed class ChatCompletionStreamChunk
+{
+    [JsonPropertyName("choices")]
+    public IReadOnlyList<StreamChoiceDto>? Choices { get; init; }
+}
+
+internal sealed class StreamChoiceDto
+{
+    [JsonPropertyName("delta")]
+    public StreamDeltaDto? Delta { get; init; }
+
+    [JsonPropertyName("finish_reason")]
+    public string? FinishReason { get; init; }
+}
+
+internal sealed class StreamDeltaDto
+{
+    [JsonPropertyName("content")]
+    public string? Content { get; init; }
 }

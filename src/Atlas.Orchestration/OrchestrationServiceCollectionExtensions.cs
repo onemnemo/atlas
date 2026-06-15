@@ -1,10 +1,13 @@
 using Atlas.Core;
+using Atlas.Core.Inference;
 using Atlas.Core.Pipeline;
 using Atlas.Core.Tasks;
+using Atlas.Core.Tools;
 using Atlas.Orchestration.Routing;
 using Atlas.Orchestration.Stages;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace Atlas.Orchestration;
 
@@ -37,7 +40,13 @@ public static class OrchestrationServiceCollectionExtensions
         services.TryAddSingleton<IPipelineStage<ChatDraftInput, string>, ChatDrafterStage>();
 
         // Routes (one registration per task type; resolved as IEnumerable).
-        services.AddSingleton<IPipelineRoute, ChatRoute>();
+        // ChatRoute takes IToolGateway as optional; use a factory so DI returns
+        // null rather than throwing when the tools module is not registered.
+        services.AddSingleton<IPipelineRoute>(static provider => new ChatRoute(
+            provider.GetRequiredService<IPipelineStage<ChatDraftInput, string>>(),
+            provider.GetRequiredService<IModelResolver>(),
+            provider.GetRequiredService<IOptions<ChatOptions>>(),
+            provider.GetService<IToolGateway>()));
 
         services.TryAddSingleton<IAtlasOrchestrator, AtlasOrchestrator>();
 

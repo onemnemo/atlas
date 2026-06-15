@@ -10,6 +10,7 @@ using Atlas.Orchestration;
 using Atlas.Studio.Logging;
 using Atlas.Studio.Screens;
 using Atlas.Tools;
+using Atlas.Tools.WebSearch;
 using Hexa.NET.ImGui;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -42,6 +43,7 @@ internal sealed partial class StudioApp : IDisposable
         var profiles = provider.GetRequiredService<ITaskProfileProvider>();
         var inferenceOptions = provider.GetRequiredService<IOptions<InferenceOptions>>().Value;
         var chatOptions = provider.GetRequiredService<IOptions<ChatOptions>>().Value;
+        var webSearchOptions = provider.GetRequiredService<IOptions<WebSearchOptions>>().Value;
         var logBuffer = provider.GetRequiredService<LogBuffer>();
         var toolGateway = provider.GetRequiredService<IToolGateway>();
         _toolRegistry = provider.GetRequiredService<ToolRegistry>();
@@ -59,7 +61,7 @@ internal sealed partial class StudioApp : IDisposable
             new ModelsScreen(inferenceOptions, resolver, hardware),
             new TaskProfilesScreen(profiles),
             new ToolsScreen(toolGateway, _toolRegistry, _state, hardware),
-            new SettingsScreen(_state, inferenceOptions, chatOptions),
+            new SettingsScreen(_state, inferenceOptions, chatOptions, webSearchOptions),
             new PermissionsScreen(_state),
             new LogsScreen(logBuffer),
         ];
